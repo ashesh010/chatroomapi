@@ -55,7 +55,7 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
 
         //Handle user leaving the chat
         socket.on('user-leave', username => {
-            socket.broadcast.emit('user-leave', username+ 'has left the chat')
+            socket.broadcast.emit('user-leave', username+ ' has left the chat')
         })
         
         //Fetch chat list from mongo collection
