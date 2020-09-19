@@ -14,23 +14,26 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
     const users = {};
 
     io.on('connection', socket => {
+        socket.on("user-id",() => {
+            socket.emit("user-id", socket.id);
+        })
+
         //Creat function to send status
         sendStatus = function(s) {
             io.emit('status', s);
         }
     
         //Get chats from mongo collection
-        chat.find().limit(100).sort({_id:1}).toArray(function(err, res) {
-            if(err) {
-                throw err
-            }
-            //Emit the messages
-            io.emit('message', res);
-        });
+        // chat.find().limit(100).sort({_id:1}).toArray(function(err, res) {
+        //     if(err) {
+        //         throw err
+        //     }
+        //     //Emit the messages
+        //     io.emit('message', res);
+        // });
         
         //Handle new user join in chat
         socket.on("new-user", username => {
-            users[socket.id] = username;
             socket.broadcast.emit('new-user',username + ' has joined the chat')
         })
 
