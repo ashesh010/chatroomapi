@@ -58,6 +58,7 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
             socket.broadcast.emit('user-leave', username+ ' has left the chat')
         })
         
+        //Landing api
         app.get('/',function(req,res) {
             if(err) {
                 console.log(err)
@@ -65,6 +66,7 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
                 res.send('Welcome to API')
             }
         })
+
         //Fetch chat list from mongo collection
         app.get('/api/chatlist', function (req, res) {
             var per = parseInt(req.query.per);
