@@ -63,7 +63,7 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
             var per = parseInt(req.query.per);
             var page = parseInt(req.query.page);
 
-            let chats = chat.find().limit(per).skip(page).sort({_id:-1}).toArray(function(err, chats) {
+            chat.find().limit(per).skip(page).sort({_id:-1}).toArray(function(err, chats) {
                 if(err) {
                     console.log(err);
                 } else{
@@ -71,13 +71,6 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
                 }
             })
         })
-
-
-        //handle clear
-        io.on('clear',function(data) {
-            //remove all chats from collection
-            //chat.remove({})
-        })        
     })
 })
 
