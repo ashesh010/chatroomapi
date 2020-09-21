@@ -6,12 +6,12 @@ const io = require('socket.io')(http)
 //Connect to mongo
 mongo.connect('mongodb://127.0.0.1/chatroom', { useNewUrlParser: true, useUnifiedTopology: true }, function(err,client) {
     if(err) {
-        throw err;
+        console.log(err);
     }
     console.log('MongoDB connected');
     var db = client.db('chatroom');
     let chat = db.collection('chats');
-    const users = {};
+    var users = [];
 
     io.on('connection', socket => {
         socket.on("user-id",() => {
@@ -20,7 +20,10 @@ mongo.connect('mongodb://127.0.0.1/chatroom', { useNewUrlParser: true, useUnifie
         
         //Handle new user join in chat
         socket.on("new-user", username => {
+            userdata = { userid:socket.id, username }
+            users.push(userdata);
             socket.broadcast.emit('new-user',username + ' has joined the chat')
+            io.emit("users",users);
         })
 
         //Handle input events
@@ -39,8 +42,14 @@ mongo.connect('mongodb://127.0.0.1/chatroom', { useNewUrlParser: true, useUnifie
         })
 
         //Handle user leaving the chat
-        socket.on('user-leave', username => {
+        socket.on('user-leave', ({userid,username}) => {
+            // get index of object with id:userid
+            var removeIndex = users.map(function(item) { return item.userid; }).indexOf(userid);
+
+            // remove object
+            users.splice(removeIndex, 1);
             socket.broadcast.emit('user-leave', username+ ' has left the chat')
+            io.emit("users",users);
         })
         
         //Landing api
