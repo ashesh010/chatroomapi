@@ -4,7 +4,7 @@ const mongo = require('mongodb').MongoClient;
 const io = require('socket.io')(http)
 
 //Connect to mongo
-mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
+mongo.connect('mongodb://127.0.0.1/chatroom', { useNewUrlParser: true, useUnifiedTopology: true }, function(err,client) {
     if(err) {
         throw err;
     }
@@ -17,20 +17,6 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
         socket.on("user-id",() => {
             socket.emit("user-id", socket.id);
         })
-
-        //Creat function to send status
-        sendStatus = function(s) {
-            io.emit('status', s);
-        }
-    
-        //Get chats from mongo collection
-        // chat.find().limit(100).sort({_id:1}).toArray(function(err, res) {
-        //     if(err) {
-        //         throw err
-        //     }
-        //     //Emit the messages
-        //     io.emit('message', res);
-        // });
         
         //Handle new user join in chat
         socket.on("new-user", username => {
@@ -38,20 +24,16 @@ mongo.connect('mongodb://127.0.0.1/chatroom', function(err,client) {
         })
 
         //Handle input events
-        socket.on('message', ({username, message}) => {
+        socket.on('message', ({userid, username, message}) => {
             //Check for username and message
-            if(message == '') {
-                //Send error status
-                sendStatus('Please enter a message')
-            } else {
+            if(message.trim() != '') {
                 //Insert message
-                chat.insertOne({username : username, message: message}, function() {
-                    io.emit('message', {username,message})
-                    //Send status object
-                    sendStatus({
-                        message: 'Message sent',
-                        clear: true
-                    })
+                chat.insertOne({userid:userid, username : username, message: message}, function(err,done) {
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        io.emit('message', {userid,username,message})  
+                    }
                 })
             }
         })
