@@ -3,6 +3,13 @@ const http = require('http').createServer(app)
 const mongo = require('mongodb').MongoClient;
 const io = require('socket.io')(http)
 
+var bodyParser = require('body-parser');
+
+// configure app to use bodyParser()
+// this will let us get the data from a POST
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 //Connect to mongo
 mongo.connect('mongodb://127.0.0.1/chatroom', { useNewUrlParser: true, useUnifiedTopology: true }, function(err,client) {
     if(err) {
@@ -73,6 +80,16 @@ mongo.connect('mongodb://127.0.0.1/chatroom', { useNewUrlParser: true, useUnifie
                     res.json(chats);
                 }
             })
+        })
+
+        //Check user exists
+        app.post('/api/checkUserExists', function(req,res) {
+            var onlineUsers = [];
+            users.map((onlineUser) => {
+                onlineUsers.push(onlineUser.username);
+            })
+            var userExists = onlineUsers.includes(req.body.username);
+            res.json(userExists);
         })
     })
 })
